@@ -1,6 +1,6 @@
 from twitchAPI.twitch import Twitch
 from twitchAPI.oauth import UserAuthenticator
-from twitchAPI.types import AuthScope
+from twitchAPI.type import AuthScope
 import time
 import os
 import psutil
@@ -12,7 +12,7 @@ load_dotenv()
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
-USER_SCOPE = [AuthScope.USER_READ_STREAM_KEY]
+USER_SCOPE = [AuthScope.CHANNEL_READ_STREAM_KEY]
 REDIRECT_URI = 'http://localhost:17563'
 
 
