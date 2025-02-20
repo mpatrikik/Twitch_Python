@@ -35,10 +35,14 @@ def close_app(app_name):
 async def main():
     try:
         twitch = Twitch(CLIENT_ID, CLIENT_SECRET)
+        print("Twitch object created.")
         await twitch.authenticate_app([])
+        print("App authenticated.")
         auth = UserAuthenticator(twitch, USER_SCOPE, force_verify=False, url=REDIRECT_URI)
         token, refresh_token = await auth.authenticate()
-        twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+        print("User authenticated.")
+        await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+        print("Authentication set.")
     except Exception as e:
         print(f"Error during Twitch API authentication: {e}")
         exit()
@@ -46,13 +50,14 @@ async def main():
     channel_name = input("Please add the channel name: ")
 
     try:
-        stream = await twitch.get_streams(user_login=channel_name)
+        stream = await twitch.get_streams(user_login=[channel_name])
         if stream['data']:
             print(f"The {channel_name} is streaming now.")
             stream = True
         else:
             print(f"The {channel_name} is not streaming now.")
             stream = False
+            exit()
     except Exception as e:
         print(f"Error while querying channel status: {e}")
         exit()
