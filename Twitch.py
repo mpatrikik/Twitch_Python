@@ -42,7 +42,7 @@ async def main():
         token, refresh_token = await auth.authenticate()
         print("User authenticated.")
         await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
-        print("Authentication set.")
+        print("All authentication set.")
     except Exception as e:
         print(f"Error during Twitch API authentication: {e}")
         exit()
@@ -50,14 +50,16 @@ async def main():
     channel_name = input("Please add the channel name: ")
 
     try:
-        stream = await twitch.get_streams(user_login=[channel_name])
-        if stream['data']:
-            print(f"The {channel_name} is streaming now.")
-            stream = True
-        else:
-            print(f"The {channel_name} is not streaming now.")
-            stream = False
-            exit()
+        stream_data = []
+        async for response in twitch.get_streams(user_login=[channel_name]):
+            stream_data.append(response)
+            if stream_data:
+                print(f"The {channel_name} is streaming now.")
+                streaming = True
+            else:
+                print(f"The {channel_name} is not streaming now.")
+                streaming = False
+                exit()
     except Exception as e:
         print(f"Error while querying channel status: {e}")
         exit()
@@ -65,26 +67,28 @@ async def main():
 
     while streaming:
         try:
-            time.sleep(60)
-            stream = await twitch.get_streams(user_login=[channel_name])
+            await asyncio.sleep(30)
+            stream_data = []
+            async for response in twitch.get_streams(user_login=[channel_name]):
+                stream_data.append(response)
 
-            if not stream['data']:
-                print("The stream ended!")
-                streaming = False
-                close_app("chrome.exe")
+                if not stream_data:
+                    print("The stream ended!")
+                    streaming = False
+                    close_app("chrome.exe")
 
-                root = tk.Tk()
-                root.withdraw()
+                    root = tk.Tk()
+                    root.withdraw()
 
-                result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
+                    result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
 
-                if result:
-                    print("Shutting down...")
-                    os.system("shutdown /s /t 5")
-                else:
-                    print("Script ends.")
-                root.destroy()
-                break
+                    if result:
+                        print("Shutting down...")
+                        os.system("shutdown /s /t 5")
+                    else:
+                        print("Script ends.")
+                    root.destroy()
+                    break
         except Exception as e:
             print(f"Error while checking: {e}")
 
