@@ -53,13 +53,12 @@ async def main():
         stream_data = []
         async for response in twitch.get_streams(user_login=[channel_name]):
             stream_data.append(response)
-            if stream_data:
-                print(f"The {channel_name} is streaming now.")
-                streaming = True
-            else:
-                print(f"The {channel_name} is not streaming now.")
-                streaming = False
-                exit()
+        if stream_data:
+            print(f"The {channel_name} is streaming now.")
+            streaming = True
+        else:
+            print(f"The {channel_name} is not streaming now.")
+            streaming = False
     except Exception as e:
         print(f"Error while querying channel status: {e}")
         exit()
