@@ -1,7 +1,6 @@
 from twitchAPI.twitch import Twitch
 from twitchAPI.oauth import UserAuthenticator
 from twitchAPI.type import AuthScope
-import time
 import os
 import psutil
 from dotenv import load_dotenv
