@@ -46,49 +46,59 @@ async def main():
         print(f"Error during Twitch API authentication: {e}")
         exit()
 
-    channel_name = input("Please add the channel name: ")
-
-    try:
-        stream_data = []
-        async for response in twitch.get_streams(user_login=[channel_name]):
-            stream_data.append(response)
-        if stream_data:
-            print(f"The {channel_name} is streaming now.")
-            streaming = True
-        else:
-            print(f"The {channel_name} is not streaming now.")
-            streaming = False
-    except Exception as e:
-        print(f"Error while querying channel status: {e}")
-        exit()
-
-
-    while streaming:
+    while True:
+        channel_name = input("\nPlease enter the channel name: ")
         try:
-            await asyncio.sleep(30)
             stream_data = []
             async for response in twitch.get_streams(user_login=[channel_name]):
                 stream_data.append(response)
-
-                if not stream_data:
-                    print("The stream ended!")
-                    streaming = False
-                    close_app("chrome.exe")
-
-                    root = tk.Tk()
-                    root.withdraw()
-
-                    result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
-
-                    if result:
-                        print("Shutting down...")
-                        os.system("shutdown /s /t 5")
-                    else:
-                        print("Script ends.")
-                    root.destroy()
-                    break
+            if stream_data:
+                print(f"The {channel_name} is streaming now.")
+                streaming = True
+            else:
+                print(f"The {channel_name} is not streaming now.")
+                streaming = False
         except Exception as e:
-            print(f"Error while checking: {e}")
+            print(f"Error while querying channel status: {e}")
+            exit()
+
+        if not streaming:
+            while True:
+                retry = input("Do you want to check another channel(Y/N): ").strip().upper()
+                if retry == 'Y':
+                    break
+                elif retry == 'N':
+                    print("Script ends.")
+                    return
+                else:
+                    print("Invalid input. Please enter 'Y' or 'N'!")
+
+        else:
+            while streaming:
+                try:
+                    await asyncio.sleep(15)
+                    stream_data = []
+                    async for response in twitch.get_streams(user_login=[channel_name]):
+                        stream_data.append(response)
+
+                        if not stream_data:
+                            print("The stream ended!")
+                            streaming = False
+                            close_app("chrome.exe")
+
+                            root = tk.Tk()
+                            root.withdraw()
+
+                            result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
+                            root.destroy()
+                            if result:
+                                print("Shutting down...")
+                                os.system("shutdown /s /t 5")
+                            else:
+                                print("Script ends.")
+                            break
+                except Exception as e:
+                    print(f"Error while checking: {e}")
 
 if __name__ == '__main__':
     asyncio.run(main())

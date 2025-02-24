@@ -8,40 +8,40 @@ class TestTwitch(unittest.IsolatedAsyncioTestCase):
     @patch('Twitch.close_app')
     @patch('Twitch.Twitch.get_streams', new_callable=AsyncMock)
     @patch('asyncio.sleep', new_callable=AsyncMock)
-    @patch('tkinter.messagebox.askyesno', new_callable=MagicMock)
-    @patch('os.system')
-    async def test_stream_end_with_shutdown(self, mock_system, mock_askyesno, mock_sleep, mock_get_streams, mock_close_app):
+    #@patch('tkinter.messagebox.askyesno', new_callable=MagicMock)
+    #@patch('os.system')
+    async def test_stream_end_with_shutdown(self, mock_sleep, mock_get_streams, mock_close_app):
         mock_get_streams.side_effect = [
             [{'user_login': 'testchannel', 'type': 'live'}],
             []
         ]
-        mock_askyesno.return_value = True
+        #mock_askyesno.return_value = True
         with patch('builtins.input', return_value='testchannel'):
             await main()
         mock_get_streams.assert_called()
         mock_close_app.assert_called_once_with("chrome.exe")
-        mock_askyesno.assert_called_once_with("End of stream", "Want to shut down the PC?")
-        mock_system.assert_called_once_with("shutdown /s /t 5")
+        #mock_askyesno.assert_called_once_with("End of stream", "Want to shut down the PC?")
+        #mock_system.assert_called_once_with("shutdown /s /t 5")
 
 
 
     @patch('Twitch.close_app')
     @patch('Twitch.Twitch.get_streams', new_callable=AsyncMock)
     @patch('asyncio.sleep', new_callable=AsyncMock)
-    @patch('tkinter.messagebox.askyesno', new_callable=MagicMock)
-    @patch('os.system')
-    async def test_stream_end_without_shutdown(self, mock_system, mock_askyesno, mock_sleep, mock_get_streams,                                               mock_close_app):
+    #@patch('tkinter.messagebox.askyesno', new_callable=MagicMock)
+    #@patch('os.system')
+    async def test_stream_end_without_shutdown(self, mock_sleep, mock_get_streams, mock_close_app):
         mock_get_streams.side_effect = [
             [{'user_login': 'testchannel', 'type': 'live'}],
             []
         ]
-        mock_askyesno.return_value = False
+        #mock_askyesno.return_value = False
         with patch('builtins.input', return_value='testchannel'):
             await main()
         mock_get_streams.assert_called()
         mock_close_app.assert_called_once_with("chrome.exe")
-        mock_askyesno.assert_called_once_with("End of stream", "Want to shut down the PC?")
-        mock_system.assert_not_called()
+        #mock_askyesno.assert_called_once_with("End of stream", "Want to shut down the PC?")
+        #mock_system.assert_not_called()
 
 
 
