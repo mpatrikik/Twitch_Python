@@ -16,7 +16,7 @@ class TestTwitch(unittest.IsolatedAsyncioTestCase):
             []
         ]
         #mock_askyesno.return_value = True
-        with patch('builtins.input', return_value='testchannel'):
+        with patch('builtins.input', side_effect=['testchannel', 'n']):
             await main()
         mock_get_streams.assert_called()
         mock_close_app.assert_called_once_with("chrome.exe")
@@ -36,7 +36,7 @@ class TestTwitch(unittest.IsolatedAsyncioTestCase):
             []
         ]
         #mock_askyesno.return_value = False
-        with patch('builtins.input', return_value='testchannel'):
+        with patch('builtins.input', side_effect=['testchannel', 'n']):
             await main()
         mock_get_streams.assert_called()
         mock_close_app.assert_called_once_with("chrome.exe")

@@ -87,7 +87,6 @@ async def main():
                             close_app("chrome.exe")
 
                             root = tk.Tk()
-                            root.withdraw()
 
                             result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
                             root.destroy()
