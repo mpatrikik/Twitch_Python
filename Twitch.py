@@ -81,21 +81,21 @@ async def main():
                     async for response in twitch.get_streams(user_login=[channel_name]):
                         stream_data.append(response)
 
-                        if not stream_data:
-                            print("The stream ended!")
-                            streaming = False
-                            close_app("chrome.exe")
+                    if not stream_data:
+                        print("The stream ended!")
+                        streaming = False
+                        close_app("chrome.exe")
 
-                            root = tk.Tk()
+                        root = tk.Tk()
 
-                            result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
-                            root.destroy()
-                            if result:
-                                print("Shutting down...")
-                                os.system("shutdown /s /t 5")
-                            else:
-                                print("Script ends.")
-                            break
+                        result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
+                        root.destroy()
+                        if result:
+                            print("Shutting down...")
+                            os.system("shutdown /s /t 5")
+                        else:
+                            print("Script ends.")
+                        break
                 except Exception as e:
                     print(f"Error while checking: {e}")
 
