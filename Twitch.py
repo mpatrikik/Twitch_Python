@@ -17,6 +17,7 @@ REDIRECT_URI = 'http://localhost:17563'
 
 
 def close_app(app_name):
+    count = 0
     for proc in psutil.process_iter(['pid', 'name']):
         if proc.info['name'] == app_name:
             try:
@@ -26,10 +27,22 @@ def close_app(app_name):
                     p.wait(timeout=5)
                 except psutil.TimeoutExpired:
                     p.kill()
-                print(f"{app_name} closed.")
+                count += 1
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
+    if count > 0:
+        print(f"{count} instances of {app_name} closed.")
 
+
+async def show_chrome_dialog(message, title):
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes("-topmost", True)
+    try:
+        result = await asyncio.to_thread(messagebox.askyesno, title, message)
+        return result
+    finally:
+        root.destroy()
 
 async def main():
     try:
@@ -76,7 +89,7 @@ async def main():
         else:
             while streaming:
                 try:
-                    await asyncio.sleep(15)
+                    await asyncio.sleep(10)
                     stream_data = []
                     async for response in twitch.get_streams(user_login=[channel_name]):
                         stream_data.append(response)
@@ -84,15 +97,25 @@ async def main():
                     if not stream_data:
                         print("The stream ended!")
                         streaming = False
-                        close_app("chrome.exe")
 
-                        root = tk.Tk()
+                        try:
+                            close_chrome = await asyncio.wait_for(show_chrome_dialog("Want to close Chrome?", "End of stream"), timeout=30)
+                        except asyncio.TimeoutError:
+                            print("Timeout while waiting for user input.")
+                            close_chrome = True
 
-                        result = messagebox.askyesno("End of stream", "Want to shut down the PC?")
-                        root.destroy()
-                        if result:
+                        if close_chrome:
+                            close_app("chrome.exe")
+
+                        try:
+                            shutdown = await asyncio.wait_for(show_chrome_dialog("Want to shut down the PC?", "End of stream"), timeout=30)
+                        except asyncio.TimeoutError:
+                            shutdown = False
+                            print("Timeout: Not shutting down.")
+
+                        if shutdown:
                             print("Shutting down...")
-                            os.system("shutdown /s /t 5")
+                            os.system("shutdown /s /t 10")
                         else:
                             print("Script ends.")
                         break
