@@ -34,15 +34,9 @@ def close_app(app_name):
         print(f"{count} instances of {app_name} closed.")
 
 
-async def show_chrome_dialog(message, title):
-    root = tk.Tk()
-    root.withdraw()
-    root.attributes("-topmost", True)
-    try:
-        result = await asyncio.to_thread(messagebox.askyesno, title, message)
-        return result
-    finally:
-        root.destroy()
+async def show_dialog(message, title):
+    result = await asyncio.to_thread(messagebox.askyesno, title, message)
+    return result
 
 async def main():
     try:
@@ -98,20 +92,22 @@ async def main():
                         print("The stream ended!")
                         streaming = False
 
+                        #chrome closing
                         try:
-                            close_chrome = await asyncio.wait_for(show_chrome_dialog("Want to close Chrome?", "End of stream"), timeout=30)
+                            close_chrome = await asyncio.wait_for(show_dialog("Want to close Chrome?", "End of stream"), timeout=15)
                         except asyncio.TimeoutError:
-                            print("Timeout while waiting for user input.")
+                            print("Timeout while waiting for user input(Chrome).")
                             close_chrome = True
 
                         if close_chrome:
                             close_app("chrome.exe")
 
+                        #PC shutdown
                         try:
-                            shutdown = await asyncio.wait_for(show_chrome_dialog("Want to shut down the PC?", "End of stream"), timeout=30)
+                            shutdown = await asyncio.wait_for(show_dialog("Want to shut down the PC?", "End of stream"), timeout=15)
                         except asyncio.TimeoutError:
-                            shutdown = False
-                            print("Timeout: Not shutting down.")
+                            print("Timeout while waiting for user input (Shutdown).")
+                            shutdown = True
 
                         if shutdown:
                             print("Shutting down...")
